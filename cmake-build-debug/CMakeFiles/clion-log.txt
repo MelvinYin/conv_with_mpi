@@ -1,0 +1,5 @@
+/snap/clion/81/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/yincp/Desktop/conv_rewrite
+/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent/include/usr/lib/x86_64-linux-gnu/openmpi/include
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/yincp/Desktop/conv_rewrite/cmake-build-debug
