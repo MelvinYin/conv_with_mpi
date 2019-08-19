@@ -9,6 +9,7 @@ CMakeFiles/conv_rewrite.dir/main.cpp.o: ../include/cereal/details/polymorphic_im
 CMakeFiles/conv_rewrite.dir/main.cpp.o: ../include/cereal/details/static_object.hpp
 CMakeFiles/conv_rewrite.dir/main.cpp.o: ../include/cereal/details/traits.hpp
 CMakeFiles/conv_rewrite.dir/main.cpp.o: ../include/cereal/macros.hpp
+CMakeFiles/conv_rewrite.dir/main.cpp.o: ../include/cereal/types/array.hpp
 CMakeFiles/conv_rewrite.dir/main.cpp.o: ../include/cereal/types/base_class.hpp
 CMakeFiles/conv_rewrite.dir/main.cpp.o: ../include/cereal/types/common.hpp
 CMakeFiles/conv_rewrite.dir/main.cpp.o: ../include/cereal/types/string.hpp

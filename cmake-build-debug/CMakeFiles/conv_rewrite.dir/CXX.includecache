@@ -94,6 +94,12 @@ cereal/access.hpp
 
 ../include/cereal/macros.hpp
 
+../include/cereal/types/array.hpp
+cereal/cereal.hpp
+../include/cereal/types/cereal/cereal.hpp
+array
+-
+
 ../include/cereal/types/base_class.hpp
 cereal/details/traits.hpp
 ../include/cereal/types/cereal/details/traits.hpp
@@ -154,6 +160,14 @@ math.h
 chrono
 -
 cstdlib
+-
+cereal/types/vector.hpp
+-
+cereal/types/string.hpp
+-
+cereal/types/array.hpp
+-
+cereal/archives/binary.hpp
 -
 
 /usr/lib/x86_64-linux-gnu/openmpi/include/mpi.h

@@ -10,6 +10,7 @@ CMakeFiles/conv_rewrite.dir/main.cpp.o
  ../include/cereal/details/static_object.hpp
  ../include/cereal/details/traits.hpp
  ../include/cereal/macros.hpp
+ ../include/cereal/types/array.hpp
  ../include/cereal/types/base_class.hpp
  ../include/cereal/types/common.hpp
  ../include/cereal/types/string.hpp
