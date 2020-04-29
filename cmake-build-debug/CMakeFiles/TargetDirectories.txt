@@ -1,3 +1,0 @@
-/home/yincp/Desktop/conv_rewrite/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/yincp/Desktop/conv_rewrite/cmake-build-debug/CMakeFiles/conv_rewrite.dir
-/home/yincp/Desktop/conv_rewrite/cmake-build-debug/CMakeFiles/edit_cache.dir

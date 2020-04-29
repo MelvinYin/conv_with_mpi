@@ -17,6 +17,7 @@
 #include <math.h>
 #include <chrono>
 #include <cstdlib>
+#include <assert.h>
 
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
@@ -27,7 +28,7 @@
 //****************************************************************************80
 using namespace std;
 
-const int kProfileLength = 50;
+const int kProfileLength = 30;
 const int kNumAlph = 20;
 
 std::array<char, kNumAlph> kAlphabets = {'A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K',
@@ -40,7 +41,6 @@ std::map<int, char> int_letter_map;
 
 
 struct Matrix {
-  std::string initial_segment;
   std::string origin; // id of the origin
   int Kmatches;	   //number of segments with score > score(p)
   double score;  //score(p)
@@ -107,7 +107,6 @@ void write_Matrices(std::string filename, std::vector<Matrix> matrices) {
   for (Matrix matrix: matrices) {
     file << "PROTOTYPE 1\n";
     file << "BEGIN\n";
-    file << "SEGMENT " << matrix.initial_segment << "\n";
     char formatted_line[1000];
     std::sprintf(formatted_line, "MATRIX Kmatches=%d Score=%f",
                  matrix.Kmatches, matrix.score);
@@ -194,6 +193,8 @@ int main(int argc, char *argv[]) {
   MPI_Comm_size(MPI_COMM_WORLD, &num_p);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   
+  cout << "num_p: " << num_p << endl;
+  
   for (int i=0;i<kNumAlph;i++){
     letter_int_map[kAlphabets[i]] = i;
     int_letter_map[i] = kAlphabets[i];
@@ -206,6 +207,7 @@ int main(int argc, char *argv[]) {
   std::string proteome_filename = "proteome_binary";
   std::vector<std::string> headers;
   std::vector<std::vector<int>> sequences;
+  cout << "Reading Proteome file\n\n" << endl;
   load(proteome_filename, headers, sequences);
   cout << "Proteome_size: " << sequences.size() << endl;
 
@@ -254,9 +256,11 @@ int main(int argc, char *argv[]) {
 //  std::vector<std::string> initial_seqs = split_seq(initial_seq, 10,
 //    kProfileLength);
   auto* PSSM = new double[kProfileLength*kNumAlph];
-  auto* M = new double[kProfileLength*kNumAlph];
+  double M[kProfileLength*kNumAlph] = {0};
+  double M1[kProfileLength*kNumAlph] = {0};
+//  auto* M = new double[kProfileLength*kNumAlph];
   auto* PSSM2 = new double[kProfileLength*kNumAlph];
-  auto* M1 = new double[kProfileLength*kNumAlph];
+//  auto* M1 = new double[kProfileLength*kNumAlph];
   auto* freq = new double[kProfileLength*kNumAlph];
   auto* other_freq = new double[kProfileLength*kNumAlph];
   std::array<double, kProfileLength> Information = {0};
@@ -268,25 +272,38 @@ int main(int argc, char *argv[]) {
   }
 
   std::string input_matrix_fname = "input_matrix_binary";
+//  std::vector<std::vector<int>> input_matrix(A_NUMBER, std::vector<int>(OTHER_NUMBER));
+  
   std::vector<std::vector<double>> input_matrix;
   load(input_matrix_fname, input_matrix);
   cout << "input_matrix_size: " << input_matrix.size() << endl;
-
-//  std::string single_seed_seq_fname = "single_seed_seq_binary";
+  
+  std::vector<std::vector<int>> seed_seqs_all;
+  std::string seed_seq_fname = "seed_seq_binary";
+//  int seed_seq[kProfileLength] = {0};
 //  std::string seed_seq;
-//  load(single_seed_seq_fname, seed_seq);
-//  cout << "single_seed_seq_size: " << seed_seq.size() << endl;
-  std::array<int, kProfileLength> seed_seq = {0};
+  load(seed_seq_fname, seed_seqs_all);
+  cout << "Num seed seq: " << seed_seqs_all.size() << endl;
+  std::vector<int> seed_seq;
+  for (std::vector<int> tmp: seed_seqs_all){
+    for (int i: tmp){
+      seed_seq.push_back(i);
+    }
+    break;
+  }
+  cout << "Seed Seq Length: " << seed_seq.size() << endl;
+  assert (seed_seq.size() == kProfileLength);
+//  (seed_seqs_all[0]);
+//  int seed_seq[kProfileLength] = {0};
 
 //  std::string Kmatches_fname = "single_Kmatches_binary";
   int single_Kmatches = 449;
 //  load(Kmatches_fname, single_Kmatches);
-//  cout << "single_Kmatches: " << single_Kmatches << endl;
-  
+
   for (int i=0;i<kProfileLength;i++){
     double H_sum = 0.0; // attention: it is in nats, not in bits
     for (int j=0;j<kNumAlph;j++){
-      M[i*kNumAlph+j] = input_matrix[i][j];
+      M[i*kNumAlph+j] = input_matrix[j][i];
       if (M[i*kNumAlph+j] > 0.0) {
         H_sum += M[i*kNumAlph+j] * (log(M[i*kNumAlph+j])/log(2));
       }
@@ -320,14 +337,6 @@ int main(int argc, char *argv[]) {
   }
   
 //  end of conversion
-  
-  if (rank == 0){
-    cout << "seed_seq: ";
-    for (int i=0;i<seed_seq.size();i++){
-      cout << int_letter_map[seed_seq[i]];
-    }
-    cout << endl;
-  }
   
   int converged = 0;
   double S;
@@ -427,6 +436,7 @@ int main(int argc, char *argv[]) {
         }
       }
     }
+    cout << "Kmatches: " << Kmatches << endl;
     if (rank != 0){
       MPI_Send(&Kmatches, 1, MPI_INT, 0, 2, MPI_COMM_WORLD);
     } else{
@@ -475,15 +485,10 @@ int main(int argc, char *argv[]) {
       if (distance < epsilon || iteration >= theta) {
         converged = 1;
         if (Kmatches < K_min) {
+          cout << "Kmatches is zero" << endl;
           break;
         }
         Matrix matrix;
-        vector<char> seed_seq_v;
-        for(int letter_i: seed_seq){
-          seed_seq_v.push_back(int_letter_map[letter_i]);
-        }
-        std::string seed_seq_letters(seed_seq_v.begin(), seed_seq_v.end());
-        matrix.initial_segment = seed_seq_letters;
         matrix.Kmatches = Kmatches;
         matrix.score = final_maxS;
         for (int i=0;i<kProfileLength;i++){
@@ -493,7 +498,11 @@ int main(int argc, char *argv[]) {
         }
         converged_matrices.push_back(matrix);
       } else {
-        M = M1;
+        for (int i=0;i<kProfileLength*kNumAlph;i++){
+          M[i] = M1[i];
+        }
+//        copy(begin(M), end(M), begin(M1));
+//        M = M1;
       }
     }
     MPI_Bcast(M, kNumAlph*kProfileLength, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -526,13 +535,6 @@ int main(int argc, char *argv[]) {
            score_tmp, freq_tmp);
       cout << "Kmatches_tmp: " << Kmatches_tmp << endl;
       cout << "score_tmp: " << score_tmp << endl;
-      for (std::array<double, kNumAlph> line: freq_tmp){
-        cout << "line: ";
-        for (double value: line){
-          cout << value << " ";
-        }
-        cout << endl;
-      }
       break;
     }
   }
