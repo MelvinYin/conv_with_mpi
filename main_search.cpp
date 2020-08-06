@@ -82,19 +82,6 @@ int random_index_50[11][50] = {{8, 36, 48, 4, 16, 7, 31, 48, 28, 30, 41, 24, 13,
                                {16, 11, 34, 13, 19, 12, 15, 23, 5, 17, 5, 48, 28, 5, 41, 36, 41, 21, 14, 24, 19, 2, 20, 11, 20, 37, 19, 15, 21, 6, 34, 39, 37, 38, 5, 15, 14, 1, 15, 25, 4, 17, 35, 4, 46, 4, 1, 40, 0, 18},
                                {48, 22, 31, 30, 9, 6, 32, 49, 20, 4, 32, 42, 11, 11, 49, 9, 9, 20, 19, 6, 45, 32, 38, 18, 8, 13, 9, 34, 46, 2, 49, 20, 39, 43, 35, 47, 44, 13, 11, 19, 27, 34, 10, 3, 45, 42, 15, 16, 49, 4}};
 
-//int random_index_50[11][50] =
-//  {{46,20,41,29,21,26,37,13,17,36,47,8,25,43,9,48,39,24,1,5,34,45,32,18,14,40,38,28,7,6,11,27,0,44,33,19,16,35,23,4,42,49,2,15,30,12,3,10,22,31},
-//   {26,41,10,42,36,32,44,16,21,5,20,34,37,33,35,0,46,45,19,18,39,9,27,1,7,13,8,14,28,15,4,43,48,12,29,25,24,40,31,30,38,47,23,11,3,22,2,49,17,6},
-//   {17,10,21,31,40,18,44,39,30,29,33,41,38,34,15,7,5,23,36,35,47,42,25,19,48,11,3,37,20,43,9,46,1,26,28,22,12,0,4,24,27,14,32,8,16,6,45,49,2,13},
-//   {48,1,42,34,15,25,30,35,38,2,46,43,45,47,33,0,20,11,14,7,21,32,49,23,37,5,13,39,18,36,28,26,9,22,31,41,19,10,24,8,6,17,44,40,16,29,4,3,27,12},
-//   {35,48,29,36,47,45,40,11,33,24,9,8,32,15,43,4,34,5,21,6,14,30,13,28,2,26,39,19,31,46,37,41,1,18,38,49,10,17,44,23,22,3,27,20,25,16,12,42,7,0},
-//   {37,2,8,0,19,36,39,20,13,47,22,31,7,48,32,26,11,42,17,41,44,10,5,49,45,40,1,30,38,29,24,18,43,6,15,3,14,35,34,46,4,23,33,12,28,21,16,27,25,9},
-//   {31,37,39,41,44,12,18,26,47,24,36,16,8,15,43,6,30,49,38,35,14,19,22,9,28,34,48,5,45,32,27,23,25,46,21,42,40,11,17,0,20,29,13,10,7,1,2,4,3,33},
-//   {2,35,10,39,47,28,31,44,43,29,37,6,46,45,30,1,16,32,5,25,24,18,11,34,26,21,38,14,22,7,20,23,17,42,33,48,0,19,41,49,12,9,40,4,13,8,27,3,36,15},
-//   {28,30,33,14,11,48,26,46,21,1,35,49,15,43,37,42,24,16,10,13,34,25,44,23,41,12,9,7,4,20,8,5,29,45,39,17,0,3,31,27,19,36,6,22,40,47,2,32,18,38},
-//   {42,33,40,26,0,4,36,22,37,19,8,17,30,46,31,48,44,29,45,28,15,41,13,47,27,16,10,5,24,3,35,38,21,49,34,43,1,25,39,20,12,2,9,7,14,18,6,32,23,11},
-//   {27,30,16,49,38,33,11,36,0,32,42,7,26,41,40,44,45,4,21,47,35,12,31,13,28,15,2,19,39,22,3,18,5,34,10,48,43,6,29,24,46,14,37,17,1,25,20,23,8,9}};
-
 void output_matrix(const std::string& filename, const Matrix& matrix) {
   ofstream file;
   file.open(filename);
@@ -246,32 +233,21 @@ filename) {
   return input_matrix;
 }
 
-inline bool exists_test (const std::string& name) {
-  if (FILE *file = fopen(name.c_str(), "r")) {
-    fclose(file);
-    return true;
-  } else {
-    return false;
-  }
-}
 
 int main(int argc, char *argv[]) {
 //  Input files are proteome_binary, input_matrix.txt
 //  Output files are converged_matrix.txt, composition.txt
   int rank;
-  int num_p = 6;
-  
-
+  int num_p;
+  for (int i = 0; i < argc; i++) {
+    cout << *argv[i] << endl;
+  }
+  cout << argc << endl;
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &num_p);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  if (rank == 0) {
-    cout << "num_p: " << num_p << endl;
-    for (int i = 0; i < argc; i++) {
-      cout << argv[i] << endl;
-    }
-    cout << argc << endl;
-  }
+  cout << "num_p: " << num_p << endl;
+  
   srand(time(nullptr) + rank);
   
   std::map<char, int> letter_int_map;
@@ -285,33 +261,15 @@ int main(int argc, char *argv[]) {
   
   const double omega = 1.0;
   
-  std::string proteome_filename = argv[5];
+  std::string proteome_filename = "proteome_binary";
   std::vector<std::string> headers;
   std::vector<std::vector<int>> sequences;
-  
-  if (!exists_test(proteome_filename)){
-    cout << "Proteome file does not exist at " +
-    proteome_filename + ". Exiting." << endl;
-    return 1;
-  }
-  if (rank == 0) {
-    cout << "Reading Proteome file" << endl;
-  }
-
+  cout << "Reading Proteome file\n\n" << endl;
   load(proteome_filename, headers, sequences);
-
-  if (rank == 0) {
-    cout << "Proteome_size: " << sequences.size() << endl;
-  }
+  cout << "Proteome_size: " << sequences.size() << endl;
   
-  std::string matrix_input = argv[6];
-  if (!exists_test(matrix_input)){
-    cout << "matrix_input file does not exist at " +
-      matrix_input + ". Exiting." << endl;
-    return 1;
-  }
-  std::string output_filename = argv[7];
   
+  std::string matrix_input = "input_matrix.txt";
   std::vector<std::vector<double>> input_matrix = load_input_matrix
     (matrix_input);
 
@@ -342,23 +300,6 @@ int main(int argc, char *argv[]) {
   double Information[kProfileLength] = {0};
   
   int single_Kmatches = 449;
-//  load(Kmatches_fname, single_Kmatches);
-
-
-//  for (int i = 0; i < kProfileLength; i++) {
-//    double H_sum = 0.0;
-//    for (int j = 0; j < kNumAlph; j++) {
-//      if (M[i*kNumAlph+j] > 0.0000001) {
-//        H_sum += M[i*kNumAlph+j] * (log(M[i*kNumAlph+j]) / log(2));
-//      }
-//    }
-//    Information[i] = log(kNumAlph) / log(2) + H_sum;
-//
-//    if (Information[i] < 1.0) {
-//      Information[i] = 0.0;
-//    }
-//  }
-
   
   for (int i=0;i<kProfileLength;i++){
     double H_sum = 0.0; // attention: it is in nats, not in bits
@@ -369,23 +310,12 @@ int main(int argc, char *argv[]) {
       }
     }
     Information[i] = log(20)/log(2) + H_sum;
-//    if (Information[i] < 1.0) {
-//      cout << "Information" << Information[i] << endl;
-//      Information[i] = 0.0;
-//    }
-//    for (int i=0;i<kProfileLength;i++){
-//      cout << i << ": " << Information[i] << endl;
-//    }
   }
   
   double sum_aa;
   
   for (int j=0;j<kNumAlph;j++){
     for (int i=0;i<kProfileLength;i++){
-//      PSSM[i*kNumAlph+j] = Information[i] *
-//                           log( ((M[i*kNumAlph+j]*single_Kmatches + omega*pc) /
-//                                 (single_Kmatches + 20.0*omega*pc))
-//                                / composition[j] );
       M[i*kNumAlph+j] = (M[i*kNumAlph+j] + composition[j] *
         composition[j]) / (single_Kmatches + composition_sum_squares);
       PSSM[i*kNumAlph+j] = log(M[i*kNumAlph+j] / composition[j]);
@@ -411,20 +341,13 @@ int main(int argc, char *argv[]) {
         }
       }
       Information[i] = log(kNumAlph) / log(2) + H_sum;
-      
-//      if (Information[i] < 1.0) {
-//
-//        Information[i] = 0.0;
-//      }
     }
-//    for (int i=0;i<kProfileLength;i++){
-//      cout << i << ": " << Information[i] << endl;
-//    }
     
     double maxS[num_p];
     maxS[rank] = (double) - INFINITY;
 
     /////////////////// BACKGROUND DISTRIBUTIONS ///////////////////
+
     int kNumberRandomisations = 10;
     for (int rand_count = 0;
          rand_count < kNumberRandomisations; rand_count++) {
@@ -450,6 +373,7 @@ int main(int argc, char *argv[]) {
         }
       }
     }
+
     if (rank != 0){
       MPI_Send(maxS+rank, 1, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD);
     } else{
@@ -470,10 +394,7 @@ int main(int argc, char *argv[]) {
       final_maxS = final_maxS * 1.02;
       is_first_run = 0;
     }
-    if (rank == 0) {
-      cout << "final_maxS" << final_maxS << endl;
-    }
-
+    cout << "final_maxS" << final_maxS << endl;
     MPI_Bcast(&final_maxS, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     
     int Kmatches = 0;
@@ -505,10 +426,7 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-    if (rank == 0) {
-      cout << "Kmatches: " << Kmatches << endl;
-    }
-
+    cout << "Kmatches: " << Kmatches << endl;
     if (rank != 0){
       MPI_Send(&Kmatches, 1, MPI_INT, 0, 2, MPI_COMM_WORLD);
     } else{
@@ -571,6 +489,8 @@ int main(int argc, char *argv[]) {
         for (int i=0;i<kProfileLength*kNumAlph;i++){
           M[i] = M1[i];
         }
+//        copy(begin(M), end(M), begin(M1));
+//        M = M1;
       }
     }
     MPI_Bcast(M, kNumAlph*kProfileLength, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -580,30 +500,27 @@ int main(int argc, char *argv[]) {
   }
   auto t2 = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+  std::cout << "duration: " << duration << endl;
+  
   if (rank == 0) {
-    std::cout << "duration: " << duration << endl;
+    std::string output_filename("conv_matrices_0");
+    save(output_filename, matrix.Kmatches,
+         matrix.score, matrix.freq);
   }
-
-  
-//  if (rank == 0) {
-//    std::string output_filename("conv_matrices_0");
-//    save(output_filename, matrix.Kmatches,
-//         matrix.score, matrix.freq);
-//  }
-//
-//  if (rank == 0) {
-//    std::string output_filename("conv_matrices_0");
-//    int Kmatches_tmp = 0;
-//    double score_tmp = 0;
-//    std::array<std::array<double, kNumAlph>, kProfileLength> freq_tmp = {0};
-//    load(output_filename, Kmatches_tmp,
-//         score_tmp, freq_tmp);
-//    cout << "Kmatches_tmp: " << Kmatches_tmp << endl;
-//    cout << "score_tmp: " << score_tmp << endl;
-//  }
   
   if (rank == 0) {
-    output_matrix(output_filename, matrix);
+    std::string output_filename("conv_matrices_0");
+    int Kmatches_tmp = 0;
+    double score_tmp = 0;
+    std::array<std::array<double, kNumAlph>, kProfileLength> freq_tmp = {0};
+    load(output_filename, Kmatches_tmp,
+         score_tmp, freq_tmp);
+    cout << "Kmatches_tmp: " << Kmatches_tmp << endl;
+    cout << "score_tmp: " << score_tmp << endl;
+  }
+  
+  if (rank == 0) {
+    output_matrix("converged_matrix.txt", matrix);
   }
   MPI_Finalize();
   return 0;

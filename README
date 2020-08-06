@@ -1,0 +1,3 @@
+brew install mpich
+
+mpicxx -std=c++11 -Iinclude -o calcu main.cpp
