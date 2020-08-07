@@ -1,3 +1,0 @@
-/Users/melvinyin/Desktop/work/conv_with_mpi/CMakeFiles/rebuild_cache.dir
-/Users/melvinyin/Desktop/work/conv_with_mpi/CMakeFiles/edit_cache.dir
-/Users/melvinyin/Desktop/work/conv_with_mpi/CMakeFiles/conv_rewrite.dir
